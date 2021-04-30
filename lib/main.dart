@@ -44,14 +44,26 @@ class _HomeScreenState extends State<HomeScreen>
       duration: const Duration(milliseconds: 300),
       reverseDuration: const Duration(milliseconds: 400),
     );
+    _animationController.addListener(() {
+      listenAnimation(_animationController.value);
+    });
     super.initState();
+  }
+
+  void listenAnimation(double value) {
+    if (value > .5) {
+      setState(() {
+        showRow = false;
+      });
+    } else {
+      setState(() {
+        showRow = true;
+      });
+    }
   }
 
   refreshContainer() {
     print("Animation Completed");
-    setState(() {
-      showRow = !showRow;
-    });
   }
 
   @override
@@ -89,8 +101,11 @@ class _HomeScreenState extends State<HomeScreen>
                     child: showRow
                         ? RowWidgetMenu(
                             onTap: onTap,
+                            animation: _animationController,
                           )
-                        : ColumnWidgetMenu(),
+                        : ColumnWidgetMenu(
+                            animation: _animationController,
+                          ),
                   ),
                 ),
               );
@@ -102,9 +117,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-class RowWidgetMenu extends StatelessWidget {
-  const RowWidgetMenu({Key key, this.onTap}) : super(key: key);
+class RowWidgetMenu extends AnimatedWidget {
+  RowWidgetMenu({this.onTap, Animation<double> animation})
+      : super(listenable: animation);
   final VoidCallback onTap;
+  Animation<double> get animation => listenable;
 
   @override
   Widget build(BuildContext context) {
@@ -146,98 +163,148 @@ class RowWidgetMenu extends StatelessWidget {
   }
 }
 
-class ColumnWidgetMenu extends StatelessWidget {
+class ColumnWidgetMenu extends AnimatedWidget {
+  ColumnWidgetMenu({Animation<double> animation})
+      : super(listenable: animation);
+  Animation<double> get animation => listenable;
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(height: size.height * .01),
-        Container(
-          width: 40,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Color(0xFF6D40FE),
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        Container(
-          width: 200,
-          height: 200,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                bottom: 14,
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF1A00A9),
-                    borderRadius: BorderRadius.circular(20),
+    return animation.value > 0.75
+        ? LayoutBuilder(
+            builder: (context, constraints) {
+              final size = constraints;
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    top: size.maxHeight * .01,
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF6D40FE),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  color: Color(0xFF0A0431),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Text(
-          "Last Century",
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
-        ),
-        Text(
-          "Bloody Tear",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        SizedBox(height: size.height * .01),
-        Container(
-          width: 5,
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(5),
-          ),
-        ),
-        SizedBox(height: size.height * .01),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Icon(
-              Icons.loop_rounded,
-              color: Colors.white,
-              size: 30,
-            ),
-            Icon(
-              Icons.pause,
-              color: Colors.white,
-              size: 30,
-            ),
-            Icon(
-              Icons.model_training,
-              color: Colors.white,
-              size: 30,
-            ),
-          ],
-        ),
-        SizedBox(height: size.height * .03),
-      ],
-    );
+                  Positioned(
+                    top: size.maxHeight * .01,
+                    child: Container(
+                      width: size.maxWidth,
+                      height: size.maxHeight,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 1.0, end: 0.0),
+                            duration: const Duration(milliseconds: 300),
+                            builder: (context, value, _) {
+                              final sizePosition = size.maxHeight * .58;
+                              return Positioned(
+                                bottom: (size.maxHeight * .5 - sizePosition) *
+                                        value +
+                                    sizePosition,
+                                child: Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF1A00A9),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 1.0, end: 0.0),
+                            duration: const Duration(milliseconds: 250),
+                            builder: (context, value, _) {
+                              final sizePosition = size.maxHeight * .6;
+                              return Positioned(
+                                bottom: (size.maxHeight * .5 - sizePosition) *
+                                        value +
+                                    sizePosition,
+                                child: Transform.scale(
+                                  alignment: Alignment.bottomCenter,
+                                  scale: -value + 1,
+                                  child: Container(
+                                    width: 150,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFF0A0431),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: size.maxHeight * .45,
+                    child: Column(
+                      children: [
+                        Text(
+                          "Last Century",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          "Bloody Tear",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: size.maxHeight * .25,
+                    child: Container(
+                      width: 5,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: size.maxHeight * .08,
+                    left: 20.0,
+                    right: 20.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Icon(
+                          Icons.loop_rounded,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        Icon(
+                          Icons.pause,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                        Icon(
+                          Icons.model_training,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          )
+        : const SizedBox.shrink();
   }
 }
