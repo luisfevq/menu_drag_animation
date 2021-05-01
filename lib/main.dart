@@ -32,9 +32,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool showRow = true;
 
   onTap() {
-    _animationController.forward().whenComplete(() {
-      refreshContainer();
-    });
+    _animationController.forward();
   }
 
   @override
@@ -62,15 +60,96 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  refreshContainer() {
-    print("Animation Completed");
-  }
-
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Stack(
         children: [
+          Container(
+            width: double.infinity,
+            height: size.height,
+            color: Colors.white,
+            padding: const EdgeInsets.only(
+              left: 20.0,
+              right: 20.0,
+            ),
+            child: ListView(
+              children: [
+                Container(
+                  width: size.width,
+                  height: size.height * .2,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: [
+                      _buildCardAlbum(
+                        size: size,
+                        title: "Asap Rocky",
+                        imageName: "assets/1827681.png",
+                      ),
+                      _buildCardAlbum(
+                        size: size,
+                        title: "EDX",
+                        imageName: "assets/person1.png",
+                      ),
+                      _buildCardAlbum(
+                        size: size,
+                        title: "Tchc",
+                        imageName: "assets/person3.png",
+                      ),
+                      _buildCardAlbum(
+                        size: size,
+                        title: "Avicii",
+                        imageName: "assets/person4.png",
+                      ),
+                      _buildCardAlbum(
+                        size: size,
+                        title: "Maroon 5",
+                        imageName: "assets/1827681.png",
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  "Recently played",
+                  style: TextStyle(
+                    color: Color(0xFF1A00A9),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16.0,
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                _buildCardRecentlyPlayed(
+                  size: size,
+                  title: "Lxst Cxntury",
+                  subTitle: "Bloody Tear",
+                  imageName: "assets/img1.png",
+                  artistImage: "assets/avatar.png",
+                ),
+                _buildCardRecentlyPlayed(
+                  size: size,
+                  title: "SuicideBoyS",
+                  subTitle: "Leave Me Alone",
+                  imageName: "assets/img2.png",
+                  artistImage: "assets/avatar.png",
+                ),
+                _buildCardRecentlyPlayed(
+                  size: size,
+                  title: "SuicideBoyS",
+                  subTitle: "Leave Me Alone",
+                  imageName: "assets/img3.png",
+                  artistImage: "assets/avatar.png",
+                ),
+                _buildCardRecentlyPlayed(
+                  size: size,
+                  title: "SuicideBoyS",
+                  subTitle: "Leave Me Alone",
+                  imageName: "assets/img4.png",
+                  artistImage: "assets/avatar.png",
+                ),
+              ],
+            ),
+          ),
           AnimatedBuilder(
             animation: _animationController,
             builder: (context, _) {
@@ -82,13 +161,9 @@ class _HomeScreenState extends State<HomeScreen>
                 child: GestureDetector(
                   onVerticalDragUpdate: (details) {
                     if (details.primaryDelta.isNegative) {
-                      _animationController.forward().whenComplete(() {
-                        refreshContainer();
-                      });
+                      _animationController.forward();
                     } else {
-                      _animationController.reverse().whenComplete(() {
-                        refreshContainer();
-                      });
+                      _animationController.reverse();
                     }
                   },
                   child: Container(
@@ -110,6 +185,96 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardAlbum({Size size, String title, String imageName}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 100,
+          height: size.height * .14,
+          margin: EdgeInsets.only(
+            right: 15.0,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            image: DecorationImage(
+              image: AssetImage(imageName),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SizedBox(height: 5),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Color(0xFF6D40FE),
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCardRecentlyPlayed({
+    Size size,
+    String title,
+    String subTitle,
+    String imageName,
+    String artistImage,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 300,
+      padding: EdgeInsets.all(30.0),
+      margin: EdgeInsets.only(
+        left: 15.0,
+        right: 15.0,
+        bottom: 10.0,
+      ),
+      decoration: BoxDecoration(
+        color: Color(0xFF0A0431),
+        borderRadius: BorderRadius.circular(25),
+        image: DecorationImage(
+          image: AssetImage(imageName),
+          fit: BoxFit.cover,
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 50.0,
+            height: 50.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage(artistImage),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w400,
+              color: Colors.grey,
+            ),
+          ),
+          Text(
+            subTitle,
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
@@ -143,6 +308,10 @@ class RowWidgetMenu extends AnimatedWidget {
             decoration: BoxDecoration(
               color: Color(0xFF0A0431),
               shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage("assets/img2.png"),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
@@ -233,6 +402,10 @@ class ColumnWidgetMenu extends AnimatedWidget {
                                     decoration: BoxDecoration(
                                       color: Color(0xFF0A0431),
                                       borderRadius: BorderRadius.circular(20),
+                                      image: DecorationImage(
+                                        image: AssetImage("assets/img2.png"),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -243,27 +416,35 @@ class ColumnWidgetMenu extends AnimatedWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    bottom: size.maxHeight * .45,
-                    child: Column(
-                      children: [
-                        Text(
-                          "Last Century",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 16,
-                          ),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 1.0, end: 0.0),
+                    duration: const Duration(milliseconds: 300),
+                    builder: (context, value, _) {
+                      final sizePosition = size.maxHeight * .45;
+                      return Positioned(
+                        bottom: (size.maxHeight * .25 - sizePosition) * value +
+                            sizePosition,
+                        child: Column(
+                          children: [
+                            Text(
+                              "Last Century",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              "Bloody Tear",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 22.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          "Bloody Tear",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                   Positioned(
                     bottom: size.maxHeight * .25,
